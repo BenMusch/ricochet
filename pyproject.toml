@@ -1,0 +1,37 @@
+[project]
+name = "ricochet-solver"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Ben Muschol", email = "benmuschol@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "textual>=6.11.0",
+]
+
+[project.scripts]
+ricochet-solver = "ricochet_solver.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "PT"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
