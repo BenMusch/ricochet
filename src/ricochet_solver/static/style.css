@@ -1,0 +1,176 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-weight: 300;
+}
+
+.board {
+    display: inline-grid;
+    grid-template-columns: repeat(16, 28px);
+    grid-template-rows: repeat(16, 28px);
+    gap: 0;
+    background: #16213e;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.cell {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #1a1a2e;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.cell:hover {
+    background: #2a2a4e;
+}
+
+.cell.selected {
+    background: #0055aa;
+}
+
+.cell.selected:hover {
+    background: #0066cc;
+}
+
+.cell.unplayable {
+    background: #2a1a1a;
+    cursor: default;
+}
+
+.cell .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #444;
+}
+
+.cell.selected .dot {
+    background: #ffcc00;
+    width: 8px;
+    height: 8px;
+}
+
+/* Wall styles */
+.cell .wall {
+    position: absolute;
+    background: #00cccc;
+    border-radius: 1px;
+}
+
+.cell .wall.top {
+    top: 0;
+    left: 2px;
+    right: 2px;
+    height: 3px;
+}
+
+.cell .wall.bottom {
+    bottom: 0;
+    left: 2px;
+    right: 2px;
+    height: 3px;
+}
+
+.cell .wall.left {
+    left: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 3px;
+}
+
+.cell .wall.right {
+    right: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 3px;
+}
+
+/* Controls */
+.controls {
+    margin-top: 20px;
+    min-height: 120px;
+}
+
+.controls .hint {
+    color: #666;
+    font-size: 14px;
+}
+
+.controls .selected-info {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.wall-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.button-row {
+    display: flex;
+    gap: 8px;
+}
+
+.button-row.middle {
+    gap: 40px;
+}
+
+button {
+    background: #2a2a4e;
+    color: #ccc;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    min-width: 140px;
+}
+
+button:hover:not(:disabled) {
+    background: #3a3a5e;
+    border-color: #666;
+    color: #fff;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+button.active {
+    background: #1a4a4a;
+    border-color: #00cccc;
+    color: #00cccc;
+}
+
+button.active:hover:not(:disabled) {
+    background: #2a5a5a;
+}

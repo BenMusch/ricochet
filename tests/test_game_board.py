@@ -21,6 +21,15 @@ def test_add_wall_out_of_bounds():
         board.add_horizontal_wall(5, -1)
     board.add_horizontal_wall(5, 0)
 
+def test_modify_uneditable_walls():
+    board = GameBoard()
+
+    with pytest.raises(AssertionError):
+        board.remove_vertical_wall(7, 7)
+
+    with pytest.raises(AssertionError):
+        board.remove_horizontal_wall(7, 7)
+
 def test_adding_vertical_walls() -> None:
     board = GameBoard()
 

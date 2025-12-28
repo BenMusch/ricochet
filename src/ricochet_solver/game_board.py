@@ -1,5 +1,13 @@
 GRID_SIZE = 16
 
+CENTER_SIZE = 2
+
+"""
+Walls along the center 4 squares to start
+"""
+VERTICAL_WALLS_START_STATE = 425365939393319416398289585530533314560
+HORIZONTAL_WALLS_START_STATE = 510423550856776670280647936708916019200
+
 class GameBoard(object):
     """
     The board is 16x16 grid, meaning the
@@ -22,8 +30,8 @@ class GameBoard(object):
     horizontal_walls: int
 
     def __init__(self) -> None:
-        self.vertical_walls = 0
-        self.horizontal_walls = 0
+        self.vertical_walls = VERTICAL_WALLS_START_STATE
+        self.horizontal_walls = HORIZONTAL_WALLS_START_STATE
 
     def add_horizontal_wall(self, x, y) -> None:
         """
@@ -35,6 +43,8 @@ class GameBoard(object):
 
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
+
+        assert not self._is_unplayable_wall_coord(x, y)
 
         self.horizontal_walls |= (1 << (y * (GRID_SIZE - 1) + x))
 
@@ -49,6 +59,8 @@ class GameBoard(object):
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
 
+        assert not self._is_unplayable_wall_coord(x, y)
+
         self.vertical_walls |= (1 << (y * (GRID_SIZE - 1) + x))
 
     def remove_horizontal_wall(self, x, y) -> None:
@@ -62,6 +74,8 @@ class GameBoard(object):
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
 
+        assert not self._is_uneditable_vertical_wall_coord()(x, y)
+
         self.horizontal_walls &= ~(1 << (y * (GRID_SIZE - 1) + x))
 
     def remove_vertical_wall(self, x, y) -> None:
@@ -74,6 +88,8 @@ class GameBoard(object):
 
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
+
+        assert not self._is_uneditable_vertical_wall_coord()(x, y)
 
         self.vertical_walls &= ~(1 << (y * (GRID_SIZE - 1) + x))
 
@@ -103,3 +119,8 @@ class GameBoard(object):
 
         return self.vertical_walls & (1 << (y * (GRID_SIZE - 1) + x)) != 0
 
+    def _is_uneditable_vertical_wall_coord(self, x: int, y: int) -> bool:
+        return x >= 6 and x <= 8 and y >= 7 and y <= 8
+
+    def _is_uneditable_horizontal_wall_coord(self, x: int, y: int) -> bool:
+        return x >= 7 and x <= 8 and y >= 6 and y <= 8

@@ -8,11 +8,11 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "textual>=6.11.0",
+    "flask>=3.0.0",
 ]
 
 [project.scripts]
-ricochet-solver = "ricochet_solver.cli:main"
+ricochet-solver = "ricochet_solver.web_app:run"
 
 [project.optional-dependencies]
 dev = [
