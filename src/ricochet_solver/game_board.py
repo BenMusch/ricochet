@@ -44,7 +44,7 @@ class GameBoard(object):
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
 
-        assert not self._is_unplayable_wall_coord(x, y)
+        assert not self._is_uneditable_horizontal_wall_coord(x, y)
 
         self.horizontal_walls |= (1 << (y * (GRID_SIZE - 1) + x))
 
@@ -59,7 +59,7 @@ class GameBoard(object):
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
 
-        assert not self._is_unplayable_wall_coord(x, y)
+        assert not self._is_uneditable_vertical_wall_coord(x, y)
 
         self.vertical_walls |= (1 << (y * (GRID_SIZE - 1) + x))
 
@@ -74,7 +74,7 @@ class GameBoard(object):
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
 
-        assert not self._is_uneditable_vertical_wall_coord()(x, y)
+        assert not self._is_uneditable_vertical_wall_coord(x, y)
 
         self.horizontal_walls &= ~(1 << (y * (GRID_SIZE - 1) + x))
 
@@ -89,7 +89,7 @@ class GameBoard(object):
         assert(y < GRID_SIZE - 1)
         assert(y >= 0)
 
-        assert not self._is_uneditable_vertical_wall_coord()(x, y)
+        assert not self._is_uneditable_vertical_wall_coord(x, y)
 
         self.vertical_walls &= ~(1 << (y * (GRID_SIZE - 1) + x))
 
