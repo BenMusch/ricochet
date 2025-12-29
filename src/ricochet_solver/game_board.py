@@ -40,6 +40,12 @@ class BoardBitmap:
         index = y * (GRID_SIZE - 1) + x
         self.bitmap &= ~(1 << index)
 
+    def __int__(self) -> int:
+        return self.bitmap
+
+    def __hash__(self) -> int:
+        return self.bitmap
+
 
 class EncodedPos:
     encoded: int
@@ -59,6 +65,12 @@ class EncodedPos:
     def y(self) -> int:
         return (self.encoded >> 4) & 0b1111
 
+    def __int__(self) -> int:
+        return self.encoded
+
+    def __hash__(self) -> int:
+        return self.encoded
+
 
 class ColoredPiece:
     color: Color
@@ -67,6 +79,9 @@ class ColoredPiece:
     def __init__(self, color: Color, position: EncodedPos) -> None:
         self.color = color
         self.position = position
+
+    def __int__(self) -> int:
+        return (self.color.value << 8) | self.position.encoded
 
 
 class GameBoard(object):
