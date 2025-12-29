@@ -42,7 +42,6 @@ function hasHorizontalWall(x, y) {
 }
 
 function setVerticalWall(x, y, value) {
-  console.log("setting vertical wall", x, y, value, GRID_SIZE);
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
   if (isUneditableVerticalWall(x, y)) return;
 
@@ -197,7 +196,6 @@ function toggleWallBelow() {
 function toggleWallLeft() {
   if (!state.selected) return;
   const { x, y } = state.selected;
-  console.log("toggling left wall", x, y);
   if (x > 0) {
     toggleVerticalWall(x - 1, y);
     render();
