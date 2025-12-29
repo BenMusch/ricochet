@@ -112,7 +112,7 @@ h1 {
 /* Controls */
 .controls {
     margin-top: 20px;
-    min-height: 120px;
+    min-height: 300px;
 }
 
 .controls .hint {
@@ -173,4 +173,73 @@ button.active {
 
 button.active:hover:not(:disabled) {
     background: #2a5a5a;
+}
+
+/* Piece styles */
+.cell .piece {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.cell .piece-red { background: #e74c3c; }
+.cell .piece-blue { background: #3498db; }
+.cell .piece-green { background: #2ecc71; }
+.cell .piece-yellow { background: #f1c40f; }
+
+/* Target styles */
+.cell .target {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 3px solid;
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.cell .target-red { border-color: #e74c3c; background: rgba(231, 76, 60, 0.2); }
+.cell .target-blue { border-color: #3498db; background: rgba(52, 152, 219, 0.2); }
+.cell .target-green { border-color: #2ecc71; background: rgba(46, 204, 113, 0.2); }
+.cell .target-yellow { border-color: #f1c40f; background: rgba(241, 196, 15, 0.2); }
+
+/* Control sections */
+.control-section {
+    margin-bottom: 16px;
+}
+
+.control-section h3 {
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+}
+
+/* Piece buttons */
+.piece-btn-red.active { border-color: #e74c3c; color: #e74c3c; }
+.piece-btn-blue.active { border-color: #3498db; color: #3498db; }
+.piece-btn-green.active { border-color: #2ecc71; color: #2ecc71; }
+.piece-btn-yellow.active { border-color: #f1c40f; color: #f1c40f; }
+
+/* Target buttons */
+.target-btn-red.active { border-color: #e74c3c; color: #e74c3c; }
+.target-btn-blue.active { border-color: #3498db; color: #3498db; }
+.target-btn-green.active { border-color: #2ecc71; color: #2ecc71; }
+.target-btn-yellow.active { border-color: #f1c40f; color: #f1c40f; }
+
+/* Reset section */
+.reset-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #333;
 }

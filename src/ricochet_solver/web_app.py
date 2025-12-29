@@ -38,8 +38,7 @@ def validate_board():
     except (ValueError, TypeError):
         return jsonify({"valid": False, "errors": ["Invalid wall data format"]})
 
-    # Check that walls fit within the valid bit range (225 bits)
-    max_bits = (GRID_SIZE - 1) * (GRID_SIZE - 1)  # 225
+    max_bits = (GRID_SIZE - 1) * (GRID_SIZE - 1)
     max_value = (1 << max_bits) - 1
 
     if vertical_walls < 0 or vertical_walls > max_value:
@@ -48,7 +47,6 @@ def validate_board():
     if horizontal_walls < 0 or horizontal_walls > max_value:
         errors.append("Horizontal walls value out of range")
 
-    # Check that the center walls are still intact
     if (vertical_walls & VERTICAL_WALLS_START_STATE) != VERTICAL_WALLS_START_STATE:
         errors.append("Center vertical walls have been modified")
 
@@ -73,4 +71,4 @@ def get_initial_state():
 
 def run():
     """Run the web server."""
-    app.run(debug=True, host="127.0.0.1", port=8080)
+    app.run(debug=True, port=8000)
