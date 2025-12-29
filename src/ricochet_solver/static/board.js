@@ -335,15 +335,29 @@ function renderBoard() {
   }
 }
 
+function renderStateInfo() {
+  const encoded = getEncodedState();
+  return `
+    <div class="state-info">
+      <div class="state-row"><span class="state-label">vertical_walls:</span> <span class="state-value">${encoded.vertical_walls}</span></div>
+      <div class="state-row"><span class="state-label">horizontal_walls:</span> <span class="state-value">${encoded.horizontal_walls}</span></div>
+      <div class="state-row"><span class="state-label">pieces:</span> <span class="state-value">${encoded.pieces}</span></div>
+      <div class="state-row"><span class="state-label">target:</span> <span class="state-value">${encoded.target !== null ? encoded.target : "None"}</span></div>
+      <div class="state-row"><span class="state-label">target_color:</span> <span class="state-value">${encoded.target_color !== null ? encoded.target_color : "None"}</span></div>
+    </div>
+  `;
+}
+
 function renderControls() {
   const controls = document.getElementById("controls");
 
   const resetButton =
     '<div class="reset-section"><button onclick="resetBoard()">Reset Board</button></div>';
+  const stateInfo = renderStateInfo();
 
   if (!state.selected) {
     controls.innerHTML =
-      '<p class="hint">Click a cell to select it</p>' + resetButton;
+      '<p class="hint">Click a cell to select it</p>' + resetButton + stateInfo;
     return;
   }
 
@@ -445,6 +459,7 @@ function renderControls() {
         </div>
 
         ${resetButton}
+        ${stateInfo}
     `;
 }
 
@@ -455,6 +470,47 @@ function getBoardState() {
     horizontalWalls: state.horizontalWalls.toString(),
     pieces: { ...state.pieces },
     target: state.target ? { ...state.target } : null,
+  };
+}
+
+// Encode state in game_board.py format
+function encodePosition(x, y) {
+  // 8-bit encoding: y * 16 + x
+  return y * GRID_SIZE + x;
+}
+
+function encodePieces() {
+  // 32-bit integer: red (bits 0-7), blue (bits 8-15), green (bits 16-23), yellow (bits 24-31)
+  let result = 0;
+  const colorOrder = ["red", "blue", "green", "yellow"];
+  for (let i = 0; i < colorOrder.length; i++) {
+    const piece = state.pieces[colorOrder[i]];
+    if (piece) {
+      const pos = encodePosition(piece.x, piece.y);
+      result |= pos << (i * 8);
+    }
+  }
+  return result;
+}
+
+function encodeTarget() {
+  if (!state.target) return null;
+  return encodePosition(state.target.x, state.target.y);
+}
+
+function encodeTargetColor() {
+  if (!state.target) return null;
+  const colorIndex = COLORS.indexOf(state.target.color);
+  return colorIndex >= 0 ? colorIndex : null;
+}
+
+function getEncodedState() {
+  return {
+    vertical_walls: state.verticalWalls.toString(),
+    horizontal_walls: state.horizontalWalls.toString(),
+    pieces: encodePieces(),
+    target: encodeTarget(),
+    target_color: encodeTargetColor(),
   };
 }
 
@@ -482,16 +538,16 @@ function setBoardState(data) {
   }
 
   // Ensure center walls are always set
-  state.verticalWalls |= VERTICAL_WALLS_START;
-  state.horizontalWalls |= HORIZONTAL_WALLS_START;
+  state.verticalWalls |= VERTICAL_WALLS_START_STATE;
+  state.horizontalWalls |= HORIZONTAL_WALLS_START_STATE;
 
   render();
 }
 
 // Reset board to initial state
 function resetBoard() {
-  state.verticalWalls = VERTICAL_WALLS_START;
-  state.horizontalWalls = HORIZONTAL_WALLS_START;
+  state.verticalWalls = VERTICAL_WALLS_START_STATE;
+  state.horizontalWalls = HORIZONTAL_WALLS_START_STATE;
   state.pieces = { red: null, blue: null, green: null, yellow: null };
   state.target = null;
   state.selected = null;

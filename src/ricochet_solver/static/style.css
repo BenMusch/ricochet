@@ -243,3 +243,27 @@ button.active:hover:not(:disabled) {
     padding-top: 16px;
     border-top: 1px solid #333;
 }
+
+/* State info display */
+.state-info {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #333;
+    text-align: left;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.state-row {
+    margin-bottom: 4px;
+    color: #555;
+    word-break: break-all;
+}
+
+.state-label {
+    color: #666;
+}
+
+.state-value {
+    color: #888;
+}
