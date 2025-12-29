@@ -1,73 +1,65 @@
 import pytest
 
-from ricochet_solver.game_board import GameBoard
+from ricochet_solver.game_board import BoardBitmap, ColoredPiece, EncodedPos, \
+    Color, GameBoard
 
-def test_add_wall_out_of_bounds():
-    board = GameBoard()
 
-    with pytest.raises(AssertionError):
-        board.add_vertical_wall(15, 3) 
-    board.add_vertical_wall(14, 3) 
+def test_board_bitmap():
+    positions = [(0, 0), (1, 2), (3, 3), (4, 4)]
+    bitmap = BoardBitmap.from_positions(positions)
+    
+    for x, y in positions:
+        assert bitmap.has(x, y)
+    
+    assert not bitmap.has(2, 2)
+    assert not bitmap.has(4, 0)
 
-    with pytest.raises(AssertionError):
-        board.add_vertical_wall(-1, 3)
-    board.add_vertical_wall(0, 3)
 
-    with pytest.raises(AssertionError):
-        board.add_horizontal_wall(5, 15)
-    board.add_horizontal_wall(5, 14)
+def test_encoded_pos():
+    pos = EncodedPos.from_xy(3, 5)
+    assert pos.x == 3
+    assert pos.y == 5
+    assert int(pos) == (5 << 4) | 3
 
-    with pytest.raises(AssertionError):
-        board.add_horizontal_wall(5, -1)
-    board.add_horizontal_wall(5, 0)
 
-def test_modify_uneditable_walls():
-    board = GameBoard()
+def test_encoded_board_as_int():
+    vertical_bitmap = BoardBitmap.from_positions(
+        [(0, 0), (1, 2), (3, 3), (4, 4)]
+    )
+    horizontal_bitmap = BoardBitmap.from_positions(
+        [(0, 1), (2, 2), (3, 0), (4, 3)]
+    )
+    pieces = [
+        ColoredPiece(color=Color.RED, position=EncodedPos.from_xy(1, 1)),
+        ColoredPiece(color=Color.BLUE, position=EncodedPos.from_xy(2, 3)),
+        ColoredPiece(color=Color.GREEN, position=EncodedPos.from_xy(3, 4)),
+        ColoredPiece(color=Color.YELLOW, position=EncodedPos.from_xy(4, 0)),
+    ]
+    target = ColoredPiece(
+        color=Color.YELLOW,
+        position=EncodedPos.from_xy(15, 13)
+    )
+    board = GameBoard(
+        vertical_walls=vertical_bitmap,
+        horizontal_walls=horizontal_bitmap,
+        pieces=pieces,
+        target=target
+    )
 
-    with pytest.raises(AssertionError):
-        board.remove_vertical_wall(7, 7)
+    board_int = int(board)
+    parsed = GameBoard.from_bigint(board_int)
 
-    with pytest.raises(AssertionError):
-        board.remove_horizontal_wall(7, 7)
+    assert parsed.vertical_walls.has(0, 0)
+    assert parsed.vertical_walls.has(1, 2)
+    assert parsed.vertical_walls.bitmap == board.vertical_walls.bitmap
+    assert parsed.horizontal_walls.bitmap == board.horizontal_walls.bitmap
+    assert all(
+        int(p1) == int(p2)
+        for p1, p2 in zip(
+            sorted(parsed.pieces, key=lambda p: p.color.value),
+            sorted(board.pieces, key=lambda p: p.color.value),
+        )
+    )
 
-def test_adding_vertical_walls() -> None:
-    board = GameBoard()
-
-    assert not board.has_vertical_wall(5, 5)
-    board.add_vertical_wall(5, 5)
-
-    assert board.has_vertical_wall(5, 5)
-    board.remove_vertical_wall(5, 5)
-
-    assert not board.has_vertical_wall(5, 5)
-
-def test_adding_horizontal_walls() -> None:
-    board = GameBoard()
-    assert not board.has_horizontal_wall(7, 8)
-
-    board.add_horizontal_wall(7, 8)
-    assert board.has_horizontal_wall(7, 8)
-
-    board.remove_horizontal_wall(7, 8)
-    assert not board.has_horizontal_wall(7, 8)
-
-def test_adding_horizontal_and_vertical_walls() -> None:
-    board = GameBoard()
-
-    assert not board.has_horizontal_wall(4, 4)
-    assert not board.has_vertical_wall(4, 4)
-
-    board.add_horizontal_wall(4, 4)
-
-    assert board.has_horizontal_wall(4, 4)
-    assert not board.has_vertical_wall(4, 4)
-
-    board.add_vertical_wall(4, 4)
-
-    assert board.has_horizontal_wall(4, 4)
-    assert board.has_vertical_wall(4, 4)
-
-    board.remove_horizontal_wall(4, 4)
-
-    assert not board.has_horizontal_wall(4, 4)
-    assert board.has_vertical_wall(4, 4)
+    assert parsed.target.color == board.target.color
+    assert parsed.target.position.encoded == board.target.position.encoded

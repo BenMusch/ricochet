@@ -24,21 +24,14 @@ class BoardBitmap:
 
     @classmethod
     def from_positions(cls, positions: list[tuple[int, int]]):
-        bitmap = cls(0)
+        bitmap = 0
         for x, y in positions:
-            bitmap.set(x, y)
+            bitmap |= (1 << (y * (GRID_SIZE - 1) + x))
+        return cls(bitmap)
 
-    def is_set(self, x: int, y: int) -> bool:
+    def has(self, x: int, y: int) -> bool:
         index = y * (GRID_SIZE - 1) + x
         return (self.bitmap & (1 << index)) != 0
-
-    def set(self, x: int, y: int) -> None:
-        index = y * (GRID_SIZE - 1) + x
-        self.bitmap |= (1 << index)
-
-    def clear(self, x: int, y: int) -> None:
-        index = y * (GRID_SIZE - 1) + x
-        self.bitmap &= ~(1 << index)
 
     def __int__(self) -> int:
         return self.bitmap
@@ -125,56 +118,77 @@ class GameBoard(object):
         next 8 bits: target piece x,y
         next 2 bits: target color encoded according to Color enum
         """
-        vertical_walls = BoardBitmap(serialized & (1 << 256 - 1))
-        serialized = serialized >> 256
-        horizontal_walls = BoardBitmap(serialized & (1 << 256 - 1))
-        serialized = serialized >> 256
+        # 298 = 256 (bits for horizontal walls) + 8*4 (bits for pieces) +
+        # 8 (bits for target) + 2 (bits for target color)
+        vertical_walls_val = serialized >> 298
+        vertical_walls = BoardBitmap(vertical_walls_val)
+
+        # 42 = 8*4 (bits for pieces) + 8 (bits for target) + 2 (bits for target color)
+        horizontal_walls_val = (serialized >> 42) & ((1 << 256) - 1)
+        horizontal_walls = BoardBitmap(horizontal_walls_val)
+
+        red_piece_val = (serialized >> 34) & 0b11111111
+        blue_piece_val = (serialized >> 26) & 0b11111111
+        green_piece_val = (serialized >> 18) & 0b11111111
+        yellow_piece_val = (serialized >> 10) & 0b11111111
 
         red_piece = ColoredPiece(
             Color.RED,
-            EncodedPos(serialized & 0b11111111)
+            EncodedPos(red_piece_val)
         )
-        serialized = serialized >> 8
         blue_piece = ColoredPiece(
             Color.BLUE,
-            EncodedPos(serialized & 0b11111111)
+            EncodedPos(blue_piece_val)
         )
-        serialized = serialized >> 8
         green_piece = ColoredPiece(
             Color.GREEN,
-            EncodedPos(serialized & 0b11111111)
+            EncodedPos(green_piece_val)
         )
-        serialized = serialized >> 8
         yellow_piece = ColoredPiece(
             Color.YELLOW,
-            EncodedPos(serialized & 0b11111111)
+            EncodedPos(yellow_piece_val)
         )
-        serialized = serialized >> 8
+
         pieces = [red_piece, blue_piece, green_piece, yellow_piece]
 
-        target_position = EncodedPos(serialized & 0b11111111)
-        serialized = serialized >> 8
-        target_color = Color(serialized & 0b11)
+        target_position_val = (serialized & 0b1111111100) >> 2
+        target_color_val = serialized & 0b11
+
+        target_position = EncodedPos(target_position_val)
+        target_color = Color(target_color_val)
         target = ColoredPiece(target_color, target_position)
 
         return cls(vertical_walls, horizontal_walls, pieces, target)
 
     def __int__(self) -> int:
+        vertical_walls_val = self.vertical_walls.bitmap
+        horizontal_walls_val = self.horizontal_walls.bitmap
+
         serialized = 0
         serialized |= self.vertical_walls.bitmap
         serialized = serialized << 256
         serialized |= self.horizontal_walls.bitmap
         serialized = serialized << 8
 
-        color_order = [Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW]
-        for color in color_order:
-            piece = next(p for p in self.pieces if p.color == color)
-            serialized |= piece.position.encoded
-            serialized = serialized << 8
+        sorted_pieces = sorted(self.pieces, key=lambda p: p.color.value)
+        [red_piece, blue_piece, green_piece, yellow_piece] = sorted_pieces
 
-        serialized |= self.target.position.encoded
-        serialized = serialized << 2
-        serialized |= self.target.color.value
+        red_val = red_piece.position.encoded
+        blue_val = blue_piece.position.encoded
+        green_val = green_piece.position.encoded
+        yellow_val = yellow_piece.position.encoded
+
+        target_val = self.target.position.encoded
+        target_color_val = self.target.color.value
+
+        serialized = vertical_walls_val << 298 | \
+                horizontal_walls_val << 42 | \
+                red_val << 34 | \
+                blue_val << 26 | \
+                green_val << 18 | \
+                yellow_val << 10 | \
+                target_val << 2 | \
+                target_color_val
 
         return serialized
 
@@ -184,8 +198,6 @@ class GameBoard(object):
     def throw_if_invalid(self) -> None:
         assert len(self.pieces) == 4, "There must be exactly 4 pieces on the board."
         assert len(set(piece.color for piece in self.pieces)) == 4, "Each piece must have a unique color."
-
-
 
         all_positions = set()
         all_positions.add(self.target.position.encoded)
