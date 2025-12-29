@@ -144,7 +144,7 @@ class GameBoard(object):
 
         return cls(vertical_walls, horizontal_walls, pieces, target)
 
-    def to_bigint(self) -> int:
+    def __int__(self) -> int:
         serialized = 0
         serialized |= self.vertical_walls.bitmap
         serialized = serialized << 256
@@ -162,6 +162,9 @@ class GameBoard(object):
         serialized |= self.target.color.value
 
         return serialized
+
+    def __hash__(self) -> int:
+        return int(self)
 
     def throw_if_invalid(self) -> None:
         assert len(self.pieces) == 4, "There must be exactly 4 pieces on the board."
