@@ -10,9 +10,11 @@ const HORIZONTAL_WALLS_START_STATE =
   130668428928063984375413354889719870128128n;
 
 // Colors matching game_board.py
-const COLORS = ["red", "blue", "green", "yellow"];
+const COLORS = ["red", "blue", "green", "yellow", "black"];
+const TARGET_COLORS = ["red", "blue", "green", "yellow"]; // black cannot be a target
 
 const state = {
+  mode: "constructing", // "constructing" or "solving"
   selected: null,
   verticalWalls: VERTICAL_WALLS_START_STATE,
   horizontalWalls: HORIZONTAL_WALLS_START_STATE,
@@ -21,8 +23,11 @@ const state = {
     blue: null,
     green: null,
     yellow: null,
+    black: null,
   },
   target: null,
+  solution: null, // { moves: [...], error: null } or { moves: null, error: "..." }
+  solving: false, // true when waiting for server response
 };
 
 // Wall coordinate helpers
@@ -351,13 +356,85 @@ function renderStateInfo() {
 function renderControls() {
   const controls = document.getElementById("controls");
 
+  if (state.mode === "solving") {
+    renderSolvingControls(controls);
+    return;
+  }
+
+  renderConstructingControls(controls);
+}
+
+function renderSolvingControls(controls) {
+  const backButton =
+    '<div class="back-section"><button onclick="backToConstructing()">Back to Editing</button></div>';
+
+  if (state.solving) {
+    controls.innerHTML = `
+      <div class="solving-status">
+        <p>Solving...</p>
+      </div>
+      ${backButton}
+    `;
+    return;
+  }
+
+  if (state.solution) {
+    if (state.solution.error) {
+      controls.innerHTML = `
+        <div class="solution-error">
+          <h3>Error</h3>
+          <p>${state.solution.error}</p>
+        </div>
+        ${backButton}
+      `;
+      return;
+    }
+
+    const moves = state.solution.moves;
+    const movesList = moves
+      .map((move, i) => {
+        const colorCap = move.color.charAt(0).toUpperCase() + move.color.slice(1);
+        const dirCap = move.direction.charAt(0).toUpperCase() + move.direction.slice(1);
+        return `<li class="move-item move-${move.color}">${i + 1}. ${colorCap} ${dirCap}</li>`;
+      })
+      .join("");
+
+    controls.innerHTML = `
+      <div class="solution-result">
+        <h3>Solution (${moves.length} move${moves.length !== 1 ? "s" : ""})</h3>
+        <ol class="moves-list">
+          ${movesList}
+        </ol>
+      </div>
+      ${backButton}
+    `;
+    return;
+  }
+
+  controls.innerHTML = backButton;
+}
+
+function renderConstructingControls(controls) {
   const resetButton =
     '<div class="reset-section"><button onclick="resetBoard()">Reset Board</button></div>';
   const stateInfo = renderStateInfo();
 
+  const solveButton = `
+    <div class="solve-section">
+      <button
+        onclick="solveBoard()"
+        ${canSolve() ? "" : "disabled"}
+        class="solve-btn"
+      >
+        Solve
+      </button>
+      ${!canSolve() ? '<p class="hint">Place all 5 pieces and a target to solve</p>' : ""}
+    </div>
+  `;
+
   if (!state.selected) {
     controls.innerHTML =
-      '<p class="hint">Click a cell to select it</p>' + resetButton + stateInfo;
+      '<p class="hint">Click a cell to select it</p>' + solveButton + resetButton + stateInfo;
     return;
   }
 
@@ -384,8 +461,8 @@ function renderControls() {
         `;
   }).join("");
 
-  // Generate target buttons
-  const targetButtons = COLORS.map((color) => {
+  // Generate target buttons (black cannot be a target)
+  const targetButtons = TARGET_COLORS.map((color) => {
     const isHere = targetHere === color;
     const canPlace = !isUnplayable;
     return `
@@ -458,6 +535,7 @@ function renderControls() {
             </div>
         </div>
 
+        ${solveButton}
         ${resetButton}
         ${stateInfo}
     `;
@@ -480,17 +558,17 @@ function encodePosition(x, y) {
 }
 
 function encodePieces() {
-  // 32-bit integer: red (bits 0-7), blue (bits 8-15), green (bits 16-23), yellow (bits 24-31)
-  let result = 0;
-  const colorOrder = ["red", "blue", "green", "yellow"];
+  // 40-bit integer: red (bits 0-7), blue (bits 8-15), green (bits 16-23), yellow (bits 24-31), black (bits 32-39)
+  let result = 0n;
+  const colorOrder = ["red", "blue", "green", "yellow", "black"];
   for (let i = 0; i < colorOrder.length; i++) {
     const piece = state.pieces[colorOrder[i]];
     if (piece) {
-      const pos = encodePosition(piece.x, piece.y);
-      result |= pos << (i * 8);
+      const pos = BigInt(encodePosition(piece.x, piece.y));
+      result |= pos << BigInt(i * 8);
     }
   }
-  return result;
+  return result.toString();
 }
 
 function encodeTarget() {
@@ -548,9 +626,59 @@ function setBoardState(data) {
 function resetBoard() {
   state.verticalWalls = VERTICAL_WALLS_START_STATE;
   state.horizontalWalls = HORIZONTAL_WALLS_START_STATE;
-  state.pieces = { red: null, blue: null, green: null, yellow: null };
+  state.pieces = { red: null, blue: null, green: null, yellow: null, black: null };
   state.target = null;
   state.selected = null;
+  state.mode = "constructing";
+  state.solution = null;
+  state.solving = false;
+  render();
+}
+
+// Check if board is ready to solve
+function canSolve() {
+  const hasPieces = COLORS.every((color) => state.pieces[color] !== null);
+  const hasTarget = state.target !== null;
+  return hasPieces && hasTarget;
+}
+
+// Solve the puzzle
+async function solveBoard() {
+  if (!canSolve()) return;
+
+  state.solving = true;
+  state.mode = "solving";
+  state.solution = null;
+  render();
+
+  const encoded = getEncodedState();
+
+  try {
+    const response = await fetch("/api/solve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(encoded),
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      state.solution = { moves: data.moves, error: null };
+    } else {
+      state.solution = { moves: null, error: data.error };
+    }
+  } catch (error) {
+    state.solution = { moves: null, error: "Failed to connect to server" };
+  }
+
+  state.solving = false;
+  render();
+}
+
+// Go back to constructing mode
+function backToConstructing() {
+  state.mode = "constructing";
+  state.solution = null;
+  state.solving = false;
   render();
 }
 

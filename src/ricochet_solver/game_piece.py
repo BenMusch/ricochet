@@ -5,6 +5,7 @@ class Color(Enum):
     BLUE = 1
     GREEN = 2
     YELLOW = 3
+    BLACK = 4
 
 
 class EncodedPos:
@@ -56,13 +57,15 @@ class PieceSet:
     blue: EncodedPos
     green: EncodedPos
     yellow: EncodedPos
+    black: EncodedPos
 
     def __init__(self, red: EncodedPos, blue: EncodedPos, green: EncodedPos,
-                 yellow: EncodedPos) -> None:
+                 yellow: EncodedPos, black: EncodedPos) -> None:
         self.red = red
         self.blue = blue
         self.green = green
         self.yellow = yellow
+        self.black = black
 
     def get(self, color: Color) -> EncodedPos:
         if color == Color.RED:
@@ -73,6 +76,8 @@ class PieceSet:
             return self.green
         elif color == Color.YELLOW:
             return self.yellow
+        elif color == Color.BLACK:
+            return self.black
         else:
             raise ValueError(f"Invalid color: {color}")
 
@@ -81,17 +86,20 @@ class PieceSet:
         blue_val = self.blue.encoded
         green_val = self.green.encoded
         yellow_val = self.yellow.encoded
+        black_val = self.black.encoded
 
-        return red_val << 24 | \
-            blue_val << 16 | \
-            green_val << 8 | \
-            yellow_val
+        return red_val << 32 | \
+            blue_val << 24 | \
+            green_val << 16 | \
+            yellow_val << 8 | \
+            black_val
 
     def __iter__(self):
         yield self.red
         yield self.blue
         yield self.green
         yield self.yellow
+        yield self.black
 
     def __hash__(self) -> int:
         return int(self)

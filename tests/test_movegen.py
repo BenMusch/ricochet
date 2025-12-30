@@ -15,6 +15,7 @@ def test_find_solution_one_move():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     target = Target(
@@ -51,6 +52,7 @@ def test_find_solution_three_move_and_wall():
         EncodedPos.from_xy(2, 15),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(14, 15),
+        EncodedPos.from_xy(13, 15),
     )
 
     target = Target(
@@ -79,6 +81,7 @@ def test_move_left_stops_at_edge():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -103,6 +106,7 @@ def test_move_left_stops_at_wall():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -127,7 +131,8 @@ def test_move_left_stops_at_piece():
         EncodedPos.from_xy(5, 5),
         EncodedPos.from_xy(3, 3),
         EncodedPos.from_xy(15, 15),
-        EncodedPos.from_xy(0, 0)
+        EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -151,6 +156,7 @@ def test_move_right_stops_at_edge():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(0, 0),
         EncodedPos.from_xy(1, 1),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -175,6 +181,7 @@ def test_move_right_stops_at_wall():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(1, 1),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -198,6 +205,7 @@ def test_move_right_stops_at_piece():
         EncodedPos.from_xy(8, 3),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -221,6 +229,7 @@ def test_move_up_stops_at_edge():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -245,6 +254,7 @@ def test_move_up_stops_at_wall():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -268,6 +278,7 @@ def test_move_up_stops_at_piece():
         EncodedPos.from_xy(3, 3),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -291,6 +302,7 @@ def test_move_down_stops_at_edge():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(0, 0),
         EncodedPos.from_xy(1, 1),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -315,6 +327,7 @@ def test_move_down_stops_at_wall():
         EncodedPos.from_xy(10, 10),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(1, 1),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(
@@ -338,6 +351,7 @@ def test_move_down_stops_at_piece():
         EncodedPos.from_xy(3, 8),
         EncodedPos.from_xy(15, 15),
         EncodedPos.from_xy(0, 0),
+        EncodedPos.from_xy(0, 15),
     )
 
     terminal_pos = get_move_end(

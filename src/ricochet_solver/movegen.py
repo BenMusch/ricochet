@@ -59,6 +59,7 @@ def apply_move(board: Board, pieces: PieceSet, move: Move) -> PieceSet:
         blue=pieces.blue,
         green=pieces.green,
         yellow=pieces.yellow,
+        black=pieces.black,
     )
 
     if color == Color.RED:
@@ -69,6 +70,8 @@ def apply_move(board: Board, pieces: PieceSet, move: Move) -> PieceSet:
         new_pieces.green = end_pos
     elif color == Color.YELLOW:
         new_pieces.yellow = end_pos
+    elif color == Color.BLACK:
+        new_pieces.black = end_pos
 
     return new_pieces
 

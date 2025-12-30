@@ -189,6 +189,7 @@ button.active:hover:not(:disabled) {
 .cell .piece-blue { background: #3498db; }
 .cell .piece-green { background: #2ecc71; }
 .cell .piece-yellow { background: #f1c40f; }
+.cell .piece-black { background: #2c3e50; border: 2px solid #7f8c8d; }
 
 /* Target styles */
 .cell .target {
@@ -230,6 +231,7 @@ button.active:hover:not(:disabled) {
 .piece-btn-blue.active { border-color: #3498db; color: #3498db; }
 .piece-btn-green.active { border-color: #2ecc71; color: #2ecc71; }
 .piece-btn-yellow.active { border-color: #f1c40f; color: #f1c40f; }
+.piece-btn-black.active { border-color: #7f8c8d; color: #7f8c8d; }
 
 /* Target buttons */
 .target-btn-red.active { border-color: #e74c3c; color: #e74c3c; }
@@ -265,5 +267,90 @@ button.active:hover:not(:disabled) {
 }
 
 .state-value {
+    color: #888;
+}
+
+/* Solve section */
+.solve-section {
+    margin-bottom: 16px;
+}
+
+.solve-btn {
+    background: #1a6a4a;
+    border-color: #2ecc71;
+    color: #2ecc71;
+    font-size: 16px;
+    padding: 12px 32px;
+    min-width: 200px;
+}
+
+.solve-btn:hover:not(:disabled) {
+    background: #2a8a5a;
+    color: #fff;
+}
+
+/* Back section */
+.back-section {
+    margin-bottom: 16px;
+}
+
+/* Solving status */
+.solving-status {
+    padding: 20px;
+    color: #888;
+}
+
+.solving-status p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Solution result */
+.solution-result {
+    text-align: left;
+    padding: 16px;
+}
+
+.solution-result h3 {
+    margin: 0 0 16px 0;
+    color: #2ecc71;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.moves-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.move-item {
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background: #2a2a4e;
+    border-radius: 4px;
+    border-left: 3px solid;
+}
+
+.move-red { border-left-color: #e74c3c; }
+.move-blue { border-left-color: #3498db; }
+.move-green { border-left-color: #2ecc71; }
+.move-yellow { border-left-color: #f1c40f; }
+.move-black { border-left-color: #7f8c8d; }
+
+/* Solution error */
+.solution-error {
+    padding: 16px;
+    text-align: left;
+}
+
+.solution-error h3 {
+    margin: 0 0 8px 0;
+    color: #e74c3c;
+    font-size: 14px;
+}
+
+.solution-error p {
+    margin: 0;
     color: #888;
 }
