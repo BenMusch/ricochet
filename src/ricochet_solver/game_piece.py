@@ -25,6 +25,14 @@ class EncodedPos:
     def y(self) -> int:
         return (self.encoded >> 4) & 0b1111
 
+    def __repr__(self) -> str:
+        return f"EncodedPos(x={self.x}, y={self.y})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, EncodedPos):
+            return False
+        return self.encoded == other.encoded
+
     def __int__(self) -> int:
         return self.encoded
 

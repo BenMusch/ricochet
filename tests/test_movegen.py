@@ -1,8 +1,72 @@
 import pytest
 
 from ricochet_solver.game_board import Board, BoardBitmap
-from ricochet_solver.game_piece import EncodedPos, PieceSet
-from ricochet_solver.movegen import get_move_end, Direction
+from ricochet_solver.game_piece import EncodedPos, PieceSet, Target, Color
+from ricochet_solver.movegen import get_move_end, Direction, find_solution
+
+def test_find_solution_one_move():
+    board = Board(
+        vertical_walls=BoardBitmap(0),
+        horizontal_walls=BoardBitmap(0),
+    )
+
+    pieces = PieceSet(
+        EncodedPos.from_xy(5, 5),
+        EncodedPos.from_xy(10, 10),
+        EncodedPos.from_xy(15, 15),
+        EncodedPos.from_xy(0, 0),
+    )
+
+    target = Target(
+        color=Color.RED,
+        position=EncodedPos.from_xy(5, 0),
+    )
+
+    solution = find_solution(board, pieces, target)
+
+    assert get_move_end(
+        board,
+        pieces,
+        pieces.red,
+        Direction.UP,
+    ).encoded == target.position.encoded
+
+
+    assert solution == [(Color.RED, Direction.UP)]
+
+def test_find_solution_three_move_and_wall():
+    board = Board(
+        vertical_walls=BoardBitmap.from_positions([
+            (0, 0),
+            (0, 15),
+            (10, 14),
+            (10, 15)
+        ]),
+        horizontal_walls=BoardBitmap(0),
+    )
+
+    # [(<Color.RED: 0>, <Direction.RIGHT: 3>), (<Color.RED: 0>, <Direction.DOWN: 1>), (<Color.RED: 0>, <Direction.LEFT: 2>), (<Color.RED: 0>, <Direction.UP: 0>)]
+    pieces = PieceSet(
+        EncodedPos.from_xy(3, 0),
+        EncodedPos.from_xy(2, 15),
+        EncodedPos.from_xy(15, 15),
+        EncodedPos.from_xy(14, 15),
+    )
+
+    target = Target(
+        color=Color.RED,
+        position=EncodedPos.from_xy(0, 0),
+    )
+
+    solution = find_solution(board, pieces, target)
+
+    assert solution == [
+        (Color.RED, Direction.LEFT),
+        (Color.BLUE, Direction.LEFT),
+        (Color.RED, Direction.DOWN),
+        (Color.RED, Direction.LEFT),
+        (Color.RED, Direction.UP)
+    ]
 
 def test_move_left_stops_at_edge():
     board = Board(

@@ -1,13 +1,76 @@
-from ricochet_solver.game_board import Board
-from ricochet_solver.game_piece import EncodedPos, PieceSet
-
+from typing import TypeAlias
 from enum import Enum
+
+from ricochet_solver.game_board import Board
+from ricochet_solver.game_piece import EncodedPos, PieceSet, Color, Target
 
 class Direction(Enum):
     UP = 0
     DOWN = 1
     LEFT = 2
     RIGHT = 3
+
+Move: TypeAlias = tuple[Color, Direction]
+
+
+def find_solution(board: Board, pieces: PieceSet, target: Target):
+    seen_positions = set()
+
+    horizon: list[tuple[PieceSet, list[Move]]] = [
+        (pieces, [])
+    ]
+
+    while horizon:
+        cur_pieces, cur_moves = horizon.pop(0)
+
+        if (len(cur_moves) > 30):
+            raise ValueError("No solution found within 30 moves")
+
+        for move in generate_moves():
+            new_pieces = apply_move(board, cur_pieces, move)
+
+            if int(new_pieces) in seen_positions:
+                continue
+
+            # solution will only be found when moving the target piece, only
+            # bother check then
+            if move[0] == target.color and new_pieces.get(move[0]) == target.position:
+                return cur_moves + [move]
+
+            seen_positions.add(int(new_pieces))
+
+            new_moves = cur_moves + [move]
+            horizon.append((new_pieces, new_moves))
+
+    raise ValueError("No solution found")
+
+def generate_moves():
+    for direction in Direction:
+        for color in Color:
+            yield (color, direction)
+
+def apply_move(board: Board, pieces: PieceSet, move: Move) -> PieceSet:
+    color, direction = move
+    start_pos = pieces.get(color)
+    end_pos = get_move_end(board, pieces, start_pos, direction)
+
+    new_pieces = PieceSet(
+        red=pieces.red,
+        blue=pieces.blue,
+        green=pieces.green,
+        yellow=pieces.yellow,
+    )
+
+    if color == Color.RED:
+        new_pieces.red = end_pos
+    elif color == Color.BLUE:
+        new_pieces.blue = end_pos
+    elif color == Color.GREEN:
+        new_pieces.green = end_pos
+    elif color == Color.YELLOW:
+        new_pieces.yellow = end_pos
+
+    return new_pieces
 
 
 def get_move_end(board: Board, pieces: PieceSet, start: EncodedPos, direction: Direction) -> EncodedPos:
